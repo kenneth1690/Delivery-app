@@ -233,7 +233,7 @@ class HomeScreen extends StatelessWidget {
 
               CountCardWidget(
                 title: 'total_orders'.tr, backgroundColor: Theme.of(context).primaryColor, height: 140,
-                value: profileController.profileModel!.orderCount.toString(),
+                value: profileController.profileModel?.orderCount.toString(),
               ),
               const SizedBox(height: Dimensions.paddingSizeSmall),
 

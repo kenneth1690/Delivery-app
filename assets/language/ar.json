@@ -383,5 +383,6 @@
   "you_want_to_disable_notification" : "هل تريد تعطيل الإشعار؟",
   "please_enter_your_new_password_and_confirm_password" : "الرجاء إدخال كلمة المرور الجديدة وتأكيد كلمة المرور",
   "number_verification_is_successful" : "تم التحقق من الرقم بنجاح",
-  "please_set_your_new_password" : "الرجاء تعيين كلمة مرور جديدة"
+  "please_set_your_new_password" : "الرجاء تعيين كلمة مرور جديدة",
+  "back_press_again_to_exit" : "اضغط مرة أخرى للخروج"
 }

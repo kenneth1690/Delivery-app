@@ -374,5 +374,15 @@
   "maximum_image_limit_is_6": "সর্বাধিক ছবি সীমা 6",
   "address_not_found" : "ঠিকানা পাওয়া যায়নি",
   "extra_packaging" : "অতিরিক্ত প্যাকেজিং",
-  "referral_discount" : "রেফারেল ডিসকাউন্ট"
+  "referral_discount" : "রেফারেল ডিসকাউন্ট",
+  "choose_your_language" : "আপনার ভাষা নির্বাচন করুন",
+  "choose_your_language_to_proceed" : "অগ্রসর হতে আপনার ভাষা নির্বাচন করুন",
+  "language_updated_successfully" : "ভাষা সফলভাবে আপডেট করা হয়েছে",
+  "are_you_sure" : "আপনি কি নিশ্চিত?",
+  "you_want_to_enable_notification" : "আপনি কি বিজ্ঞপ্তি সক্রিয় করতে চান?",
+  "you_want_to_disable_notification" : "আপনি কি বিজ্ঞপ্তি অক্ষম করতে চান?",
+  "please_enter_your_new_password_and_confirm_password" : "দয়া করে আপনার নতুন পাসওয়ার্ড এবং পাসওয়ার্ড নিশ্চিত করুন",
+  "number_verification_is_successful" : "নম্বর যাচাই সফল",
+  "please_set_your_new_password" : "দয়া করে আপনার নতুন পাসওয়ার্ড সেট করুন",
+  "back_press_again_to_exit" : "প্রস্থান করতে আবার চাপুন"
 }

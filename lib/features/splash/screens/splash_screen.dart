@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:sixam_mart_delivery/features/auth/controllers/auth_controller.dart';
+import 'package:sixam_mart_delivery/features/dashboard/screens/dashboard_screen.dart';
 import 'package:sixam_mart_delivery/features/profile/controllers/profile_controller.dart';
 import 'package:sixam_mart_delivery/features/splash/controllers/splash_controller.dart';
 import 'package:sixam_mart_delivery/features/notification/domain/models/notification_body_model.dart';
@@ -22,7 +23,7 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen> {
   final GlobalKey<ScaffoldState> _globalKey = GlobalKey();
-  late StreamSubscription<ConnectivityResult> _onConnectivityChanged;
+  StreamSubscription<List<ConnectivityResult>>? _onConnectivityChanged;
 
   @override
   void initState() {
@@ -33,22 +34,21 @@ class SplashScreenState extends State<SplashScreen> {
     }
 
     bool firstTime = true;
-    _onConnectivityChanged = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+    _onConnectivityChanged = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) {
+      bool isConnected = result.contains(ConnectivityResult.wifi) || result.contains(ConnectivityResult.mobile);
+
       if(!firstTime) {
-        bool isNotConnected = result != ConnectivityResult.wifi && result != ConnectivityResult.mobile;
-        isNotConnected ? const SizedBox() : ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
+        isConnected ? ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar() : const SizedBox();
         ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
-          backgroundColor: isNotConnected ? Colors.red : Colors.green,
-          duration: Duration(seconds: isNotConnected ? 6000 : 3),
-          content: Text(
-            isNotConnected ? 'no_connection' : 'connected',
-            textAlign: TextAlign.center,
-          ),
+          backgroundColor: isConnected ? Colors.green : Colors.red,
+          duration: Duration(seconds: isConnected ? 3 : 6000),
+          content: Text(isConnected ? 'connected'.tr : 'no_connection'.tr, textAlign: TextAlign.center),
         ));
-        if(!isNotConnected) {
+        if(isConnected) {
           _route();
         }
       }
+
       firstTime = false;
     });
 
@@ -61,45 +61,65 @@ class SplashScreenState extends State<SplashScreen> {
   void dispose() {
     super.dispose();
 
-    _onConnectivityChanged.cancel();
+    _onConnectivityChanged?.cancel();
   }
 
   void _route() {
-    Get.find<SplashController>().getConfigData().then((isSuccess) {
-      if(isSuccess) {
+    Get.find<SplashController>().getConfigData().then((isSuccess) async {
+      if (isSuccess) {
         Timer(const Duration(seconds: 1), () async {
-          double? minimumVersion = 0;
-          if(GetPlatform.isAndroid) {
-            minimumVersion = Get.find<SplashController>().configModel!.appMinimumVersionAndroid;
-          }else if(GetPlatform.isIOS) {
-            minimumVersion = Get.find<SplashController>().configModel!.appMinimumVersionIos;
-          }
-          if(AppConstants.appVersion < minimumVersion! || Get.find<SplashController>().configModel!.maintenanceMode!) {
-            Get.offNamed(RouteHelper.getUpdateRoute(AppConstants.appVersion < minimumVersion));
+          double? minimumVersion = _getMinimumVersion();
+          bool isMaintenanceMode = Get.find<SplashController>().configModel!.maintenanceMode!;
+          bool needsUpdate = AppConstants.appVersion < minimumVersion!;
+
+          if (needsUpdate || isMaintenanceMode) {
+            Get.offNamed(RouteHelper.getUpdateRoute(needsUpdate));
           }else{
             if(widget.body != null) {
-              if (widget.body!.notificationType == NotificationType.order) {
-                Get.offNamed(RouteHelper.getOrderDetailsRoute(widget.body!.orderId, fromNotification: true));
-              }else if(widget.body!.notificationType == NotificationType.order_request){
-                Get.offNamed(RouteHelper.getMainRoute('order-request'));
-              }else if(widget.body!.notificationType == NotificationType.general){
-                Get.offNamed(RouteHelper.getNotificationRoute(fromNotification: true));
-              } else {
-                Get.offNamed(RouteHelper.getChatRoute(notificationBody: widget.body, conversationId: widget.body!.conversationId, fromNotification: true));
-              }
-            }else {
-              if (Get.find<AuthController>().isLoggedIn()) {
-                Get.find<AuthController>().updateToken();
-                await Get.find<ProfileController>().getProfile();
-                Get.offNamed(RouteHelper.getInitialRoute());
-              } else {
-                Get.offNamed(RouteHelper.getSignInRoute());
-              }
+              await _handleNotificationRouting(widget.body);
+            }else{
+              await _handleDefaultRouting();
             }
           }
         });
       }
     });
+  }
+
+  double? _getMinimumVersion() {
+    if (GetPlatform.isAndroid) {
+      return Get.find<SplashController>().configModel!.appMinimumVersionAndroid;
+    } else if (GetPlatform.isIOS) {
+      return Get.find<SplashController>().configModel!.appMinimumVersionIos;
+    }
+    return 0;
+  }
+
+  Future<void> _handleNotificationRouting(NotificationBodyModel? notificationBody) async {
+    final notificationType = notificationBody?.notificationType;
+
+    final Map<NotificationType, Function> notificationActions = {
+      NotificationType.order: () => Get.toNamed(RouteHelper.getOrderDetailsRoute(notificationBody?.orderId, fromNotification: true)),
+      NotificationType.order_request: () => Get.toNamed(RouteHelper.getMainRoute('order-request')),
+      NotificationType.block: () => Get.offAllNamed(RouteHelper.getSignInRoute()),
+      NotificationType.unblock: () => Get.offAllNamed(RouteHelper.getSignInRoute()),
+      NotificationType.otp: () => null,
+      NotificationType.unassign: () => Get.to(const DashboardScreen(pageIndex: 1)),
+      NotificationType.message: () => Get.toNamed(RouteHelper.getChatRoute(notificationBody: notificationBody, conversationId: notificationBody?.conversationId, fromNotification: true)),
+      NotificationType.general: () => Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true)),
+    };
+
+    notificationActions[notificationType]?.call();
+  }
+
+  Future<void> _handleDefaultRouting() async {
+    if (Get.find<AuthController>().isLoggedIn()) {
+      Get.find<AuthController>().updateToken();
+      await Get.find<ProfileController>().getProfile();
+      Get.offNamed(RouteHelper.getInitialRoute());
+    } else {
+      Get.offNamed(RouteHelper.getSignInRoute());
+    }
   }
 
   @override

@@ -53,6 +53,22 @@ class ForgotPasswordRepository implements ForgotPasswordRepositoryInterface {
   }
 
   @override
+  Future<ResponseModel> verifyFirebaseOtp({required String phoneNumber, required String session, required String otp}) async {
+    Response response = await apiClient.postData(AppConstants.firebaseAuthVerify,
+      {'sessionInfo' : session,
+        'phoneNumber' : phoneNumber,
+        'code' : otp,
+        'is_reset_token' : 1,
+      },
+    );
+    if (response.statusCode == 200) {
+      return ResponseModel(true, response.body["message"]);
+    } else {
+      return ResponseModel(false, response.statusText);
+    }
+  }
+
+  @override
   Future<ResponseModel> resetPassword(String? resetToken, String phone, String password, String confirmPassword) async {
     ResponseModel responseModel;
     Response response = await apiClient.postData(AppConstants.resetPasswordUri,

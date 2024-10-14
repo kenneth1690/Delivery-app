@@ -99,7 +99,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> with WidgetsBin
 
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async{
         if((widget.fromNotification || widget.fromLocationScreen)) {
           Future.delayed(const Duration(milliseconds: 0), () async {
             await Get.offAllNamed(RouteHelper.getInitialRoute());

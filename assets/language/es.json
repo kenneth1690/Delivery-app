@@ -374,5 +374,15 @@
   "maximum_image_limit_is_6" : "El límite máximo de imágenes es 6",
   "address_not_found" : "Dirección no encontrada",
   "extra_packaging" : "Embalaje Extra",
-  "referral_discount" : "Descuento de Referencia"
+  "referral_discount" : "Descuento de Referencia",
+  "choose_your_language" : "Elige tu idioma",
+  "choose_your_language_to_proceed" : "Elige tu idioma para continuar",
+  "language_updated_successfully" : "Idioma actualizado con éxito",
+  "are_you_sure" : "Estás seguro",
+  "you_want_to_enable_notification" : "¿Quieres habilitar la notificación?",
+  "you_want_to_disable_notification" : "¿Quieres deshabilitar la notificación?",
+  "please_enter_your_new_password_and_confirm_password" : "Por favor, introduzca su nueva contraseña y confirme la contraseña",
+  "number_verification_is_successful" : "La verificación del número es exitosa",
+  "please_set_your_new_password" : "Por favor, establezca su nueva contraseña",
+  "back_press_again_to_exit" : "Volver a presionar para salir"
 }

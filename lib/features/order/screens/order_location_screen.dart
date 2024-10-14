@@ -132,7 +132,7 @@ class _OrderLocationScreenState extends State<OrderLocationScreen> {
               title: parcel ? 'Sender' : 'Destination',
               snippet: orderModel.deliveryAddress?.address,
             ),
-            icon: BitmapDescriptor.fromBytes(destinationImageData),
+            icon: BitmapDescriptor.bytes(destinationImageData, height: 40, width: 40),
           ));
         }
 
@@ -145,7 +145,7 @@ class _OrderLocationScreenState extends State<OrderLocationScreen> {
               title: 'Receiver',
               snippet: orderModel.receiverDetails?.address,
             ),
-            icon: BitmapDescriptor.fromBytes(restaurantImageData),
+            icon: BitmapDescriptor.bytes(restaurantImageData, height: 40, width: 40),
           ));
         }
 
@@ -158,7 +158,7 @@ class _OrderLocationScreenState extends State<OrderLocationScreen> {
               title: orderModel.storeName,
               snippet: orderModel.storeAddress,
             ),
-            icon: BitmapDescriptor.fromBytes(restaurantImageData),
+            icon: BitmapDescriptor.bytes(restaurantImageData, height: 40, width: 40),
           ));
         }
 
@@ -171,7 +171,7 @@ class _OrderLocationScreenState extends State<OrderLocationScreen> {
               title: 'delivery_man'.tr,
               snippet: Get.find<ProfileController>().recordLocationBody?.location,
             ),
-            icon: BitmapDescriptor.fromBytes(deliveryBoyImageData),
+            icon: BitmapDescriptor.bytes(deliveryBoyImageData, height: 40, width: 40),
           ));
         }
       }
@@ -188,40 +188,5 @@ class _OrderLocationScreenState extends State<OrderLocationScreen> {
     Codec codec = await instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
     FrameInfo fi = await codec.getNextFrame();
     return (await fi.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
-  }
-
-  Future<void> zoomToFit(GoogleMapController? controller, LatLngBounds? bounds, LatLng centerBounds, {double padding = 0.5}) async {
-    bool keepZoomingOut = true;
-
-    while(keepZoomingOut) {
-      final LatLngBounds screenBounds = await controller!.getVisibleRegion();
-      if(fits(bounds!, screenBounds)){
-        keepZoomingOut = false;
-        final double zoomLevel = await controller.getZoomLevel() - padding;
-        controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: centerBounds,
-          zoom: zoomLevel,
-        )));
-        break;
-      }
-      else {
-        // Zooming out by 0.1 zoom level per iteration
-        final double zoomLevel = await controller.getZoomLevel() - 0.1;
-        controller.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: centerBounds,
-          zoom: zoomLevel,
-        )));
-      }
-    }
-  }
-
-  bool fits(LatLngBounds fitBounds, LatLngBounds screenBounds) {
-    final bool northEastLatitudeCheck = screenBounds.northeast.latitude >= fitBounds.northeast.latitude;
-    final bool northEastLongitudeCheck = screenBounds.northeast.longitude >= fitBounds.northeast.longitude;
-
-    final bool southWestLatitudeCheck = screenBounds.southwest.latitude <= fitBounds.southwest.latitude;
-    final bool southWestLongitudeCheck = screenBounds.southwest.longitude <= fitBounds.southwest.longitude;
-
-    return northEastLatitudeCheck && northEastLongitudeCheck && southWestLatitudeCheck && southWestLongitudeCheck;
   }
 }

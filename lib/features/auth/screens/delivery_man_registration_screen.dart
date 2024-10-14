@@ -66,7 +66,7 @@ class _DeliveryManRegistrationScreenState extends State<DeliveryManRegistrationS
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async{
+      onPopInvokedWithResult: (didPop, result) async{
         if(Get.find<AuthController>().dmStatus != 0.4 && !didPop) {
           Get.find<AuthController>().dmStatusChange(0.4);
         }else{
